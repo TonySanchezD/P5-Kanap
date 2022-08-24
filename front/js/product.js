@@ -49,41 +49,42 @@ getProduct().then(data => {
 
 const quantity = document.querySelector("input#quantity");
 
-const clickAjoutPanier = document.querySelector("button#addToCart");
-
-let productsJson = []
-
 const ajoutPanier = () => {
     getProduct().then(data => {
-        
+
+        let productsLinea = localStorage.getItem("products");
+        let productsJson = JSON.parse(productsLinea);
+        console.log("haut")
+        console.log(productsJson)
+
         if (quantity.value != 0 && selectColor.value != "" ) {
-            if (localStorage.products = []) {
-                productsJson.push({
+            if (productsJson == null) {
+                productsJson = [{
                     id : data._id,
                     color : selectColor.value,
                     n : quantity.value
-                }) 
-                            
-                console.log(productsJson)
+                }]
             } else {
-                for (i = 0; i < localStorage.products; i++) {
-                    if (localStorage.products[i].has({id : data._id, color : selectColor.value})) {
-                        n += quantity.value
-                    }
-                }
+                productsJson.push({
+                id : data._id,
+                color : selectColor.value,
+                n : quantity.value
+                })
             }
+            let productsLinea = JSON.stringify(productsJson)
+            localStorage.setItem("products", productsLinea)    
         } else {
 
         }
-        
-        const productsLinea = JSON.stringify(productsJson)
-        localStorage.setItem("products", productsLinea)
-        console.log(localStorage.products)
+        console.log("bas")
+        console.log(productsJson)
     })
 };
-console.log(localStorage.products)
 
+const clickAjoutPanier = document.querySelector("button#addToCart");
 clickAjoutPanier.addEventListener("click", ajoutPanier);
+
+
 
 
 /* test
