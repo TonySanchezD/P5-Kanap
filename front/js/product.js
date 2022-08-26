@@ -68,9 +68,7 @@ const ajoutPanier = () => {
             } else {
                 const produitDejaDansPanier = productsJson.find(product => product.id == data._id) && productsJson.find(product => product.color == selectColor.value)
                 if  (produitDejaDansPanier) {    
-                    console.log(productsJson)
-                    console.log(produitDejaDansPanier.n += quantity )   
-                    productsJson.n += quantity
+                    produitDejaDansPanier.n += quantity
                     console.log("implémente")
                 } else {
                     productsJson.push({
