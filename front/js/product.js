@@ -47,38 +47,36 @@ getProduct().then(data => {
 });
 
 
-const quantityString = document.querySelector("input#quantity");
-const quantity = Number(quantityString.value)
+const quantityString = document.querySelector("#quantity");
 
 const ajoutPanier = () => {
     getProduct().then(data => {
-
-        console.log(typeof quantityString.value, quantityString.value)
-        console.log(typeof quantity, quantity)   
-
+        const quantity = Number(quantityString.value)  
+         
         let productsLinea = localStorage.getItem("products");
         let productsJson = JSON.parse(productsLinea);
 
-        if (quantity.value != 0 && selectColor.value != "" ) {
+        if (quantity != 0 && selectColor.value != "" ) {
 
             // Si localStorage est vide créé un tabeau 
             if (productsJson == null) {
                 productsJson = [{
                     id : data._id,
                     color : selectColor.value,
-                    n : quantity.value
+                    n : quantity
                 }]
             } else {
                 const produitDejaDansPanier = productsJson.find(product => product.id == data._id) && productsJson.find(product => product.color == selectColor.value)
-                if  (produitDejaDansPanier) {
-                    console.log(produitDejaDansPanier.n += quantity.value )
-                    produitDejaDansPanier.n += quantity.value 
+                if  (produitDejaDansPanier) {    
+                    console.log(productsJson)
+                    console.log(produitDejaDansPanier.n += quantity )   
+                    productsJson.n += quantity
                     console.log("implémente")
                 } else {
                     productsJson.push({
                         id : data._id,
                         color : selectColor.value,
-                        n : quantity.value
+                        n : quantity
                     })
                 } 
             }
