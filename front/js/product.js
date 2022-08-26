@@ -47,17 +47,21 @@ getProduct().then(data => {
 });
 
 
-const quantity = document.querySelector("input#quantity");
+const quantityString = document.querySelector("input#quantity");
+const quantity = Number(quantityString.value)
 
 const ajoutPanier = () => {
     getProduct().then(data => {
 
+        console.log(typeof quantityString.value, quantityString.value)
+        console.log(typeof quantity, quantity)   
+
         let productsLinea = localStorage.getItem("products");
         let productsJson = JSON.parse(productsLinea);
-        console.log("haut")
-        console.log(productsJson)
 
         if (quantity.value != 0 && selectColor.value != "" ) {
+
+            // Si localStorage est vide créé un tabeau 
             if (productsJson == null) {
                 productsJson = [{
                     id : data._id,
@@ -65,18 +69,25 @@ const ajoutPanier = () => {
                     n : quantity.value
                 }]
             } else {
-                productsJson.push({
-                id : data._id,
-                color : selectColor.value,
-                n : quantity.value
-                })
+                const produitDejaDansPanier = productsJson.find(product => product.id == data._id) && productsJson.find(product => product.color == selectColor.value)
+                if  (produitDejaDansPanier) {
+                    console.log(produitDejaDansPanier.n += quantity.value )
+                    produitDejaDansPanier.n += quantity.value 
+                    console.log("implémente")
+                } else {
+                    productsJson.push({
+                        id : data._id,
+                        color : selectColor.value,
+                        n : quantity.value
+                    })
+                } 
             }
             let productsLinea = JSON.stringify(productsJson)
             localStorage.setItem("products", productsLinea)    
         } else {
 
         }
-        console.log("bas")
+        //console.log("fin")
         console.log(productsJson)
     })
 };
