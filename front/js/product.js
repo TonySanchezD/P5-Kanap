@@ -24,6 +24,7 @@ const selectColor = document.querySelector("select#colors");
 const option = document.querySelector("select#colors option");
 
 getProduct().then(data => {
+
     titrePage.textContent = data.name + " - " + data.description
 
     img.src = data.imageUrl
@@ -34,20 +35,31 @@ getProduct().then(data => {
     priceProduct.textContent = data.price
 
     descriptionProduct.textContent = data.description
-    
+
     for(i = 0; i < data.colors.length; i++) {
+
         const cloneOption = option.cloneNode(true)
         const nouvelleColor = selectColor.appendChild(cloneOption)
 
         nouvelleColor.value = data.colors[i]
-        nouvelleColor.textContent = data.colors[i]        
-    }
+        nouvelleColor.textContent = data.colors[i]
 
-    
+    }
 });
 
 
 const quantityString = document.querySelector("#quantity");
+
+const settingColor = document.querySelector("div.item__content__settings__color")
+const settingQuantity = document.querySelector("div.item__content__settings__quantity ")
+
+const nonRemplie = (element) => {
+    element.style.backgroundColor = "red"
+    element.style.borderRadius = "20px"
+}
+const remplie = (element => {
+    element.style.backgroundColor = ""
+})
 
 const ajoutPanier = () => {
     getProduct().then(data => {
@@ -58,6 +70,9 @@ const ajoutPanier = () => {
 
         if (quantity != 0 && selectColor.value != "" ) {
 
+            remplie(settingColor);
+            remplie(settingQuantity);
+
             // Si localStorage est vide créé un tabeau 
             if (productsJson == null) {
                 productsJson = [{
@@ -65,11 +80,18 @@ const ajoutPanier = () => {
                     color : selectColor.value,
                     n : quantity
                 }]
+
+            // Sinon on ajoute le produit au tableau  
             } else {
+
+                // Si produit déjà dans tableau on implémente
                 const produitDejaDansPanier = productsJson.find(product => product.id == data._id) && productsJson.find(product => product.color == selectColor.value)
-                if  (produitDejaDansPanier) {    
-                    produitDejaDansPanier.n += quantity
-                    console.log("implémente")
+                if  (produitDejaDansPanier) {  
+
+                      console.log("produitDejaDansPanier", produitDejaDansPanier)
+                      produitDejaDansPanier.n += quantity
+                      
+                // Sinon on ajoute le produit au tableau      
                 } else {
                     productsJson.push({
                         id : data._id,
@@ -82,8 +104,26 @@ const ajoutPanier = () => {
             localStorage.setItem("products", productsLinea)    
         } else {
 
+            if ( selectColor.value == "" && quantity != 0 ) {
+
+                nonRemplie(settingColor)
+                remplie(settingQuantity)
+                alert(`Veuillez sectionner une couleur`)
+
+            } else if ( quantity == 0 && selectColor.value != "") { 
+
+                nonRemplie(settingQuantity)
+                remplie(settingColor)
+                alert(`Veuillez sectionner une quantitée`)
+
+            } else {
+
+                nonRemplie(settingColor)
+                nonRemplie(settingQuantity)
+                alert(`Veuillez sectionner une couleur et une quantitée`)
+
+            }
         }
-        //console.log("fin")
         console.log(productsJson)
     })
 };
@@ -92,26 +132,3 @@ const clickAjoutPanier = document.querySelector("button#addToCart");
 clickAjoutPanier.addEventListener("click", ajoutPanier);
 
 
-
-
-/* test
-let test = [
-    {
-        id : 6542,
-        color : "red",
-        n : 1  
-    },
-    {
-        id : 6434,
-        color : "blue",
-        n : 1
-    }           
-]
-
-test.push({
-    id : 1,
-    color : "vert",
-    n : 23
-})
-
-console.log("test") */
