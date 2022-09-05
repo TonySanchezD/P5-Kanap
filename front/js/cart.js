@@ -2,7 +2,7 @@ const cartItems = document.querySelector("#cart__items")
 
 
 
-const afficherPanier = () => {
+const hasCart = () => {
 
     let productsLinea = localStorage.getItem("products");
     let productsJson = JSON.parse(productsLinea);
@@ -19,8 +19,10 @@ const afficherPanier = () => {
             return data
         }
 
-        getProduct().then(data => {
+        getProduct().then(data => { // Question 1 : "data" = return data? 
         
+            //console.log("i dans 'then'", i) // Question 2 : i = 4 car le code est async, pk le code en dessous marche?
+
             const articleItem = `
                 <article class="cart__item" data-id="${product._id}" data-color="${product.color}">
                     <div class="cart__item__img">
@@ -44,24 +46,42 @@ const afficherPanier = () => {
                     </div>
                 </article>`
 
-            template += articleItem
             
-            if (i = productsJson.length - 1) {
-                cartItems.innerHTML =  template 
+
+            template += articleItem
+
+            cartItems.innerHTML =  template 
+            
+            //Question 3 : comment crée une fonction en dehors de la boucle, qui s'executera aprés que cette fonction soit fini de s'executer?
+
+            // Modification quantity
+            const allQuantity = document.querySelectorAll(".itemQuantity")
+            for (quantity of allQuantity) {
+                console.log("quantity.value", quantity.value,)
+                quantity.addEventListener("change", editCart())
             }
-        })
-    } 
+            
+            
+        }) 
+
+        console.log("i en fin de boucle",i)
+    }
 }
 
-afficherPanier().then()
 
 
-const numberProduct = document.querySelector("#itemQuantity")
-numberProduct.addEventListener("intup", editQuantity())
 
-const editQuantity = () => {
 
-    console.log("editQuantity")    
+hasCart()
 
+
+
+const editCart = () => {
+    console.log("quantity change")
 
 }
+
+
+
+    
+
