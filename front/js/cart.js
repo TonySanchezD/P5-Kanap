@@ -4,6 +4,8 @@ const addSection = document.createElement("section")
 cartItems.insertBefore(addSection, cartPrice)
 const sectionArticle = document.querySelector("#cart__items section")
 
+let allPrice = []
+
 const hasCart = () => {
 
     let productsLinea = localStorage.getItem("products");
@@ -22,8 +24,8 @@ const hasCart = () => {
         }
 
         getProduct().then(data => { 
-        
-            console.log("i dans 'then'", i) 
+
+            const priceProduct = data.price * product.n
 
             const articleItem = `
                 <article class="cart__item" data-id="${product._id}" data-color="${product.color}">
@@ -34,7 +36,7 @@ const hasCart = () => {
                         <div class="cart__item__content__description">
                             <h2>${data.name}</h2>
                             <p>${product.color}</p>
-                            <p>${data.price}</p>
+                            <p>${priceProduct}</p>
                         </div>
                         <div class="cart__item__content__settings">
                             <div class="cart__item__content__settings__quantity">
@@ -52,26 +54,47 @@ const hasCart = () => {
 
             sectionArticle.innerHTML =  template 
             
-            // Modification quantity
-            const allQuantity = document.querySelectorAll(".itemQuantity")
-            for (quantity of allQuantity) {
-                console.log("quantity.value", quantity.value,)
-                quantity.addEventListener("change", editCart)
-            }
+
+            allPrice.push(priceProduct)
+            
+            addProduct()
+            addPrice()
+
+            console.log("i dans .then", i)
         })
 
-        console.log("i en fin de boucle",i)
+        console.log("i", i)
+    }
+
+    console.log(sectionArticle.childElementCount, productsJson.length)
+    if (sectionArticle.childElementCount === productsJson.length) {
+        // Modification quantity
+            const allQuantity = document.querySelectorAll(".itemQuantity")
+            for (quantity of allQuantity) {
+                quantity.addEventListener("change", changeQuanttity)
+            }
+            console.log(sectionArticle.childElementCount)
+            console.log(productsJson.length)
     }
 }
 
-hasCart()
+const addProduct = () => {
+    const totalQuantity = document.querySelector("#totalQuantity")
+    totalQuantity.textContent = allPrice.length
+}
 
-const editCart = (event) => {
-    console.log("quantity change")
+const addPrice =  () => {
+    const totalPrice = document.querySelector("#totalPrice")
 
+    let price = 0
+    
+    for (i = 0; i < allPrice.length; i++) {
+        price += allPrice[i]
+    }
+
+    totalPrice.textContent = price
 }
 
 
 
-    
-
+hasCart()
