@@ -1,47 +1,63 @@
+//Je récuper les données du localStorage et de l'API
+dataApi = []
+localStorageProducts = []
+
+const getApi = async (id) => {
+    const res = await fetch("http://localhost:3000/api/products/" + id)
+    const data = res.json()
+    return data 
+}
+
+const getProducts = async () => {
+
+    let productsLinea = localStorage.getItem("products");
+    localStorageProducts = JSON.parse(productsLinea);
+    
+    for (i = 0; i < localStorageProducts.length; i++) {
+        const product = localStorageProducts[i]
+        
+        let data = await getApi(product.id)
+        dataApi.push(data)
+    }
+}
+
+
+//Je crée une section qui va contenir tout les article de nôtre panier
 const cartItems = document.querySelector("#cart__items")  
 const cartPrice = document.querySelector(".cart__price") 
 const addSection = document.createElement("section")
 cartItems.insertBefore(addSection, cartPrice)
 const sectionArticle = document.querySelector("#cart__items section")
 
-let allPrice = []
 
-const hasCart = () => {
-
-    let productsLinea = localStorage.getItem("products");
-    let productsJson = JSON.parse(productsLinea);
+//Je parcours les données récupérer pour les inserer dans le DOM
+function insertHTML() {
 
     let template = ""
 
-    for (i = 0; i < productsJson.length; i++) {
+    let addTotalPrice = 0
+    
 
-        const product = productsJson[i]
+    for (i = 0 ; i < localStorageProducts.length; i++) {
 
-        const getProduct = async () => {
-            const res = await fetch("http://localhost:3000/api/products/" + product.id)
-            const data = await res.json()
-            return data
-        }
+        const priceProduct = dataApi[i].price * localStorageProducts[i].n
+        addTotalPrice += priceProduct
 
-        getProduct().then(data => { 
-
-            const priceProduct = data.price * product.n
-
-            const articleItem = `
-                <article class="cart__item" data-id="${product._id}" data-color="${product.color}">
+        const articleItem = `
+                <article class="cart__item" data-id="${localStorageProducts[i]._id}" data-color="${localStorageProducts[i].color}">
                     <div class="cart__item__img">
-                        <img src="${data.imageUrl}" alt="${data.description}">
+                        <img src="${dataApi[i].imageUrl}" alt="${dataApi[i].description}">
                     </div>
                     <div class="cart__item__content">
                         <div class="cart__item__content__description">
-                            <h2>${data.name}</h2>
-                            <p>${product.color}</p>
-                            <p>${priceProduct}</p>
+                            <h2>${dataApi[i].name}</h2>
+                            <p>${localStorageProducts[i].color}</p>
+                            <p>${priceProduct},00 €</p>
                         </div>
                         <div class="cart__item__content__settings">
                             <div class="cart__item__content__settings__quantity">
                                 <p>Qté : </p>
-                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.n}">
+                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${localStorageProducts[i].n}">
                             </div>
                             <div class="cart__item__content__settings__delete">
                                 <p class="deleteItem">Supprimer</p>
@@ -50,51 +66,67 @@ const hasCart = () => {
                     </div>
                 </article>`
 
-            template += articleItem
-
-            sectionArticle.innerHTML =  template 
-            
-
-            allPrice.push(priceProduct)
-            
-            addProduct()
-            addPrice()
-
-            console.log("i dans .then", i)
-        })
-
-        console.log("i", i)
+        template += articleItem
     }
 
-    console.log(sectionArticle.childElementCount, productsJson.length)
-    if (sectionArticle.childElementCount === productsJson.length) {
-        // Modification quantity
-            const allQuantity = document.querySelectorAll(".itemQuantity")
-            for (quantity of allQuantity) {
-                quantity.addEventListener("change", changeQuanttity)
-            }
-            console.log(sectionArticle.childElementCount)
-            console.log(productsJson.length)
-    }
-}
-
-const addProduct = () => {
-    const totalQuantity = document.querySelector("#totalQuantity")
-    totalQuantity.textContent = allPrice.length
-}
-
-const addPrice =  () => {
+    //Ajout du total articles et prix
     const totalPrice = document.querySelector("#totalPrice")
+    totalPrice.textContent = `${addTotalPrice},00`
+    const totalQuatity = document.querySelector("#totalQuantity")
+    totalQuatity.textContent = localStorageProducts.length
 
-    let price = 0
-    
-    for (i = 0; i < allPrice.length; i++) {
-        price += allPrice[i]
+    sectionArticle.innerHTML = template 
+}
+
+
+//Modifier la quantité 
+function editQuantity() {
+    const itemsQuantity = document.querySelectorAll(".itemQuantity")
+
+    for (i = 0; i < itemsQuantity.length; i++) {
+        itemsQuantity[i].addEventListener("change", function (event) {
+            event.stopPropagation()
+            
+            const newQuantity = event.path[0].valueAsNumber
+            const articleProduct = event.path[4]
+
+            const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct )
+
+            localStorageProducts[positionChild].n = newQuantity
+
+            let productsLinea = JSON.stringify(localStorageProducts)
+            localStorage.setItem("products", productsLinea) 
+
+            console.log(localStorageProducts[positionChild])
+            showProducts()
+        })
     }
+}
 
-    totalPrice.textContent = price
+
+//Suppression d'un article dans le panier
+function removeProduct() {
+    const buttonsDelete = document.querySelectorAll(".itemQuantity")
+
+    for (i = 0; i < buttonsDelete.length; i++) {
+        buttonsDelete[i].addEventListener("click", function (event) {
+            console.log("delete", event)
+        })
+    }
 }
 
 
 
-hasCart()
+
+// ----- Exécution du code ----- //
+
+const showProducts = async () => {
+    let getData = await getProducts()
+
+    insertHTML()
+
+    editQuantity()
+    removeProduct()
+}
+
+showProducts()
