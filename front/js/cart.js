@@ -84,20 +84,19 @@ function editQuantity() {
     const itemsQuantity = document.querySelectorAll(".itemQuantity")
 
     for (i = 0; i < itemsQuantity.length; i++) {
-        itemsQuantity[i].addEventListener("change", function (event) {
-            event.stopPropagation()
-            
+
+        itemsQuantity[i].addEventListener("change", function (event) {  
+
             const newQuantity = event.path[0].valueAsNumber
             const articleProduct = event.path[4]
 
-            const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct )
+            const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
 
             localStorageProducts[positionChild].n = newQuantity
 
             let productsLinea = JSON.stringify(localStorageProducts)
             localStorage.setItem("products", productsLinea) 
 
-            console.log(localStorageProducts[positionChild])
             showProducts()
         })
     }
@@ -106,11 +105,24 @@ function editQuantity() {
 
 //Suppression d'un article dans le panier
 function removeProduct() {
-    const buttonsDelete = document.querySelectorAll(".itemQuantity")
+    const buttonsDelete = document.querySelectorAll(".deleteItem")
 
     for (i = 0; i < buttonsDelete.length; i++) {
         buttonsDelete[i].addEventListener("click", function (event) {
             console.log("delete", event)
+
+            const articleProduct = event.path[4]
+
+            const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
+
+            localStorageProducts.splice(positionChild, 1)
+
+            sectionArticle.remove(articleProduct)
+            
+            let productsLinea = JSON.stringify(localStorageProducts)
+            localStorage.setItem("products", productsLinea) 
+
+            showProducts()
         })
     }
 }
