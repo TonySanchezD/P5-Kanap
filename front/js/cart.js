@@ -1,3 +1,6 @@
+// -_-_-_-_-_- Afficher les produits dans le panier -_-_-_-_-_- \\
+
+
 //Je récuper les données du localStorage et de l'API
 dataApi = []
 localStorageProducts = []
@@ -128,8 +131,6 @@ function removeProduct() {
 }
 
 
-
-
 // ----- Exécution du code ----- //
 
 const showProducts = async () => {
@@ -142,3 +143,36 @@ const showProducts = async () => {
 }
 
 showProducts()
+
+
+
+// -_-_-_-_-_- Formulaire -_-_-_-_-_- \\
+
+
+//Envoi les données du formulaire a l'API
+function post(dataForm) {
+    fetch("http://localhost:3000/api/products/", {
+        method: "POST",
+        body: JSON.stringify(dataForm, localStorageProducts),
+        headers : {"Content-Type": "application/json"},
+    })
+}
+
+const form = document.querySelector(".cart__order__form")
+const formFields = document.querySelectorAll(".cart__order__form__question")
+
+
+form.addEventListener("submit", function (event) {
+
+    let contact = {}
+
+    for (i = 0; i < formFields.length; i++) {
+        
+        const nameField = formFields[i].querySelector("label").control.id
+        const valueField = formFields[i].querySelector("input").value
+        
+        contact[nameField] = valueField   
+    }
+
+    post(contact)
+})
