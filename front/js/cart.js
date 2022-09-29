@@ -3,7 +3,7 @@
 
 //Je récuper les données du localStorage et de l'API
 dataApi = []
-localStorageProducts = []
+products = []
 
 const getApi = async (id) => {
     const res = await fetch("http://localhost:3000/api/products/" + id)
@@ -14,10 +14,10 @@ const getApi = async (id) => {
 const getProducts = async () => {
 
     let productsLinea = localStorage.getItem("products");
-    localStorageProducts = JSON.parse(productsLinea);
+    products = JSON.parse(productsLinea);
     
-    for (i = 0; i < localStorageProducts.length; i++) {
-        const product = localStorageProducts[i]
+    for (i = 0; i < products.length; i++) {
+        const product = products[i]
         
         let data = await getApi(product.id)
         dataApi.push(data)
@@ -38,29 +38,33 @@ function insertHTML() {
 
     let template = ""
 
+    //Variable pour stoker le total des article et des prix
     let addTotalPrice = 0
-    
+    let addTotalQuantity = 0
 
-    for (i = 0 ; i < localStorageProducts.length; i++) {
+    for (i = 0 ; i < products.length; i++) {
 
-        const priceProduct = dataApi[i].price * localStorageProducts[i].n
+        const priceProduct = dataApi[i].price * products[i].n
+
+        //Incremente les totaux
         addTotalPrice += priceProduct
+        addTotalQuantity += products[i].n
 
         const articleItem = `
-                <article class="cart__item" data-id="${localStorageProducts[i]._id}" data-color="${localStorageProducts[i].color}">
+                <article class="cart__item" data-id="${products[i]._id}" data-color="${products[i].color}">
                     <div class="cart__item__img">
                         <img src="${dataApi[i].imageUrl}" alt="${dataApi[i].description}">
                     </div>
                     <div class="cart__item__content">
                         <div class="cart__item__content__description">
                             <h2>${dataApi[i].name}</h2>
-                            <p>${localStorageProducts[i].color}</p>
+                            <p>${products[i].color}</p>
                             <p>${priceProduct},00 €</p>
                         </div>
                         <div class="cart__item__content__settings">
                             <div class="cart__item__content__settings__quantity">
                                 <p>Qté : </p>
-                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${localStorageProducts[i].n}">
+                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${products[i].n}">
                             </div>
                             <div class="cart__item__content__settings__delete">
                                 <p class="deleteItem">Supprimer</p>
@@ -76,7 +80,7 @@ function insertHTML() {
     const totalPrice = document.querySelector("#totalPrice")
     totalPrice.textContent = `${addTotalPrice},00`
     const totalQuatity = document.querySelector("#totalQuantity")
-    totalQuatity.textContent = localStorageProducts.length
+    totalQuatity.textContent = addTotalQuantity
 
     sectionArticle.innerHTML = template 
 }
@@ -95,9 +99,9 @@ function editQuantity() {
 
             const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
 
-            localStorageProducts[positionChild].n = newQuantity
+            products[positionChild].n = newQuantity
 
-            let productsLinea = JSON.stringify(localStorageProducts)
+            let productsLinea = JSON.stringify(products)
             localStorage.setItem("products", productsLinea) 
 
             showProducts()
@@ -118,11 +122,11 @@ function removeProduct() {
 
             const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
 
-            localStorageProducts.splice(positionChild, 1)
+            products.splice(positionChild, 1)
 
             sectionArticle.remove(articleProduct)
             
-            let productsLinea = JSON.stringify(localStorageProducts)
+            let productsLinea = JSON.stringify(products)
             localStorage.setItem("products", productsLinea) 
 
             showProducts()
@@ -151,12 +155,17 @@ showProducts()
 
 //Envoi les données du formulaire a l'API
 function post(dataForm) {
-    fetch("http://localhost:3000/api/products/", {
+    fetch("http://localhost:3000/api/products/order", {
         method: "POST",
-        body: JSON.stringify(dataForm, localStorageProducts),
-        headers : {"Content-Type": "application/json"},
+        headers : {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dataForm, products)
     })
+    console.log(JSON.stringify(dataForm, products))
+    console.log("post")
 }
+
 
 const form = document.querySelector(".cart__order__form")
 const formFields = document.querySelectorAll(".cart__order__form__question")
@@ -173,6 +182,8 @@ form.addEventListener("submit", function (event) {
         
         contact[nameField] = valueField   
     }
-
+    console.log(JSON.stringify(contact))
+    console.log(JSON.stringify(products))
     post(contact)
 })
+
