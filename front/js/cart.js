@@ -25,6 +25,8 @@ const getProducts = async () => {
         let data = await getApi(product.id)
         dataApi.push(data)
     }
+    console.log("getProducts")
+    
 }
 
 
@@ -54,7 +56,7 @@ function insertHTML() {
         addTotalQuantity += productsLocalStorage[i].n
 
         const articleItem = `
-                <article class="cart__item" data-id="${productsLocalStorage[i]._id}" data-color="${productsLocalStorage[i].color}">
+                <article class="cart__item" data-id="${productsLocalStorage[i].id}" data-color="${productsLocalStorage[i].color}">
                     <div class="cart__item__img">
                         <img src="${dataApi[i].imageUrl}" alt="${dataApi[i].description}">
                     </div>
@@ -70,13 +72,15 @@ function insertHTML() {
                                 <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productsLocalStorage[i].n}">
                             </div>
                             <div class="cart__item__content__settings__delete">
-                                <p class="deleteItem">Supprimer</p>
+                                <p class="deleteItem" data-id="${productsLocalStorage[i].id}" data-color="${productsLocalStorage[i].color}">Supprimer</p>
                             </div>
                         </div>
                     </div>
                 </article>`
 
         template += articleItem
+
+        console.log("html")
     }
 
     //Ajout du total articles et prix
@@ -118,26 +122,25 @@ function removeProduct() {
     const buttonsDelete = document.querySelectorAll(".deleteItem")
 
     for (i = 0; i < buttonsDelete.length; i++) {
+        let button = buttonsDelete[i]
         buttonsDelete[i].addEventListener("click", function (event) {
-            console.log(event)
-
-            //event.target.parent
-            //dataset
-
+            
+            let articleProduct = event.target.parentElement.parentElement.parentElement.parentElement
             
 
-            const articleProduct = event.path[4] //Cause du bug?
+            for (i = 0; i < productsLocalStorage.length; i++) {
+                if (productsLocalStorage[i].id == button.dataset.id && 
+                    productsLocalStorage[i].color == button.dataset.color) {
+                       
+                        productsLocalStorage.splice([i], 1)
+                        
+                        articleProduct.remove()
+                    
+                    }
+            }
 
-            const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
-
-            products.splice(positionChild, 1)
-
-            sectionArticle.remove(articleProduct)
-            
             let productsLinea = JSON.stringify(productsLocalStorage)
             localStorage.setItem("products", productsLinea) 
-
-            showProducts()
         })
     }
 }
