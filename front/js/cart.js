@@ -199,7 +199,7 @@ form.addEventListener("submit", function (event) {
     async function postAndGoConfiramation() {
         let resPost = await post(contact)
         console.log(resPost.orderId)
-        document.location.href = `./confirmation.html?id=${resPost.orderId}`;
+        document.location.href = `./confirmation.html?orderId=${resPost.orderId}`;
     }
 
     postAndGoConfiramation()
