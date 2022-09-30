@@ -2,8 +2,9 @@
 
 
 //Je récuper les données du localStorage et de l'API
-dataApi = []
-products = []
+let dataApi = []
+let productsLocalStorage = []
+let products = []
 
 const getApi = async (id) => {
     const res = await fetch("http://localhost:3000/api/products/" + id)
@@ -14,11 +15,13 @@ const getApi = async (id) => {
 const getProducts = async () => {
 
     let productsLinea = localStorage.getItem("products");
-    products = JSON.parse(productsLinea);
+    productsLocalStorage = JSON.parse(productsLinea);
     
-    for (i = 0; i < products.length; i++) {
-        const product = products[i]
+    for (i = 0; i < productsLocalStorage.length; i++) {
+        const product = productsLocalStorage[i]
         
+        products.push(product.id)
+
         let data = await getApi(product.id)
         dataApi.push(data)
     }
@@ -42,29 +45,29 @@ function insertHTML() {
     let addTotalPrice = 0
     let addTotalQuantity = 0
 
-    for (i = 0 ; i < products.length; i++) {
+    for (i = 0 ; i < productsLocalStorage.length; i++) {
 
-        const priceProduct = dataApi[i].price * products[i].n
+        const priceProduct = dataApi[i].price * productsLocalStorage[i].n
 
         //Incremente les totaux
         addTotalPrice += priceProduct
-        addTotalQuantity += products[i].n
+        addTotalQuantity += productsLocalStorage[i].n
 
         const articleItem = `
-                <article class="cart__item" data-id="${products[i]._id}" data-color="${products[i].color}">
+                <article class="cart__item" data-id="${productsLocalStorage[i]._id}" data-color="${productsLocalStorage[i].color}">
                     <div class="cart__item__img">
                         <img src="${dataApi[i].imageUrl}" alt="${dataApi[i].description}">
                     </div>
                     <div class="cart__item__content">
                         <div class="cart__item__content__description">
                             <h2>${dataApi[i].name}</h2>
-                            <p>${products[i].color}</p>
+                            <p>${productsLocalStorage[i].color}</p>
                             <p>${priceProduct},00 €</p>
                         </div>
                         <div class="cart__item__content__settings">
                             <div class="cart__item__content__settings__quantity">
                                 <p>Qté : </p>
-                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${products[i].n}">
+                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productsLocalStorage[i].n}">
                             </div>
                             <div class="cart__item__content__settings__delete">
                                 <p class="deleteItem">Supprimer</p>
@@ -116,9 +119,14 @@ function removeProduct() {
 
     for (i = 0; i < buttonsDelete.length; i++) {
         buttonsDelete[i].addEventListener("click", function (event) {
-            console.log("delete", event)
+            console.log(event)
 
-            const articleProduct = event.path[4]
+            //event.target.parent
+            //dataset
+
+            
+
+            const articleProduct = event.path[4] //Cause du bug?
 
             const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
 
@@ -126,7 +134,7 @@ function removeProduct() {
 
             sectionArticle.remove(articleProduct)
             
-            let productsLinea = JSON.stringify(products)
+            let productsLinea = JSON.stringify(productsLocalStorage)
             localStorage.setItem("products", productsLinea) 
 
             showProducts()
@@ -154,24 +162,29 @@ showProducts()
 
 
 //Envoi les données du formulaire a l'API
-function post(dataForm) {
-    fetch("http://localhost:3000/api/products/order", {
+async function post(dataForm) {
+    
+    let data = {}
+    data.products = products
+    data.contact = dataForm
+
+    const res = await fetch("http://localhost:3000/api/products/order", {
         method: "POST",
         headers : {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(dataForm, products)
+        body: JSON.stringify(data)
     })
-    console.log(JSON.stringify(dataForm, products))
-    console.log("post")
+    const dataRes = res.json()
+    return dataRes 
 }
 
 
 const form = document.querySelector(".cart__order__form")
 const formFields = document.querySelectorAll(".cart__order__form__question")
 
-
 form.addEventListener("submit", function (event) {
+    event.preventDefault()
 
     let contact = {}
 
@@ -182,8 +195,12 @@ form.addEventListener("submit", function (event) {
         
         contact[nameField] = valueField   
     }
-    console.log(JSON.stringify(contact))
-    console.log(JSON.stringify(products))
-    post(contact)
-})
 
+    async function postAndGoConfiramation() {
+        let resPost = await post(contact)
+        console.log(resPost.orderId)
+        document.location.href = `./confirmation.html?id=${resPost.orderId}`;
+    }
+
+    postAndGoConfiramation()
+})
