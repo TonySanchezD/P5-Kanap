@@ -89,6 +89,7 @@ function insertHTML() {
     const totalQuatity = document.querySelector("#totalQuantity")
     totalQuatity.textContent = addTotalQuantity
 
+    
     sectionArticle.innerHTML = template 
 }
 
@@ -106,9 +107,9 @@ function editQuantity() {
 
             const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
 
-            products[positionChild].n = newQuantity
+            productsLocalStorage[positionChild].n = newQuantity
 
-            let productsLinea = JSON.stringify(products)
+            let productsLinea = JSON.stringify(productsLocalStorage)
             localStorage.setItem("products", productsLinea) 
 
             showProducts()
@@ -133,6 +134,7 @@ function removeProduct() {
                     productsLocalStorage[i].color == button.dataset.color) {
                        
                         productsLocalStorage.splice([i], 1)
+                        dataApi.splice([i], 1)
                         
                         articleProduct.remove()
                     
@@ -141,7 +143,10 @@ function removeProduct() {
 
             let productsLinea = JSON.stringify(productsLocalStorage)
             localStorage.setItem("products", productsLinea) 
+
+            showProducts()
         })
+       
     }
 }
 
