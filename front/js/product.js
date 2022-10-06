@@ -1,3 +1,4 @@
+//Affichage de la page produit
 const urlParams = new URLSearchParams(window.location.search);
 const idProduct = urlParams.get('id');
 
@@ -48,7 +49,8 @@ getProduct().then(data => {
 });
 
 
-const quantityString = document.querySelector("#quantity");
+//Ajouter un article au panier
+const quantityInput = document.querySelector("#quantity");
 
 const settingColor = document.querySelector("div.item__content__settings__color")
 const settingQuantity = document.querySelector("div.item__content__settings__quantity ")
@@ -63,7 +65,7 @@ const remplie = (element => {
 
 const ajoutPanier = () => {
     getProduct().then(data => {
-        const quantity = Number(quantityString.value)  
+        const quantity = Number(quantityInput.value)  
          
         let productsLinea = localStorage.getItem("products");
         let productsJson = JSON.parse(productsLinea);
@@ -85,10 +87,10 @@ const ajoutPanier = () => {
             } else {
 
                 // Si produit déjà dans tableau on implémente
-                const produitDejaDansPanier = productsJson.find(product => product.id == data._id) && productsJson.find(product => product.color == selectColor.value)
+                const produitDejaDansPanier = productsJson.find(product => product.id == data._id) && 
+                                                productsJson.find(product => product.color == selectColor.value)
                 if  (produitDejaDansPanier) {  
 
-                      console.log("produitDejaDansPanier", produitDejaDansPanier)
                       produitDejaDansPanier.n += quantity
                       
                 // Sinon on ajoute le produit au tableau      

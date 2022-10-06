@@ -25,8 +25,6 @@ const getProducts = async () => {
         let data = await getApi(product.id)
         dataApi.push(data)
     }
-    console.log("getProducts")
-    
 }
 
 
@@ -79,8 +77,6 @@ function insertHTML() {
                 </article>`
 
         template += articleItem
-
-        console.log("html")
     }
 
     //Ajout du total articles et prix
@@ -89,7 +85,6 @@ function insertHTML() {
     const totalQuatity = document.querySelector("#totalQuantity")
     totalQuatity.textContent = addTotalQuantity
 
-    
     sectionArticle.innerHTML = template 
 }
 
@@ -146,7 +141,6 @@ function removeProduct() {
 
             showProducts()
         })
-       
     }
 }
 
