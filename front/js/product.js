@@ -3,9 +3,14 @@ const urlParams = new URLSearchParams(window.location.search);
 const idProduct = urlParams.get('id');
 
 const getProduct = async () => {
-    const res = await fetch("http://localhost:3000/api/products/" + idProduct)
-    const data = await res.json()
-    return data 
+    const response = await fetch("http://localhost:3000/api/products/" + idProduct)
+    if (response.ok){
+        const data = await response.json()
+        return data
+    } else {
+        alert(`Erreur ${response.status}.
+        Veuillez revenir plus tard`)
+    }
 };
 
 
@@ -65,7 +70,8 @@ const remplie = (element => {
 
 const ajoutPanier = () => {
     getProduct().then(data => {
-        const quantity = Number(quantityInput.value)  
+
+        const quantity = parseInt(quantityInput.value)  
          
         let productsLinea = localStorage.getItem("products");
         let productsJson = JSON.parse(productsLinea);

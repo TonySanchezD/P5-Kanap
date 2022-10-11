@@ -1,7 +1,13 @@
 const getProducts = async () => {
     const response = await fetch("http://localhost:3000/api/products")
-    const data = await response.json()
-    return data
+    console.log(response)
+    if (response.ok){
+      const data = await response.json()
+      return data
+    } else {
+      alert(`Erreur ${response.status}.
+      Veuillez revenir plus tard`)
+    }
 };
 
 const sectionItems = document.querySelector("#items");

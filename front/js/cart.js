@@ -7,9 +7,14 @@ let productsLocalStorage = []
 let products = []
 
 const getApi = async (id) => {
-    const res = await fetch("http://localhost:3000/api/products/" + id)
-    const data = res.json()
-    return data 
+    const response = await fetch("http://localhost:3000/api/products/" + id)
+    if (response.ok){
+        const data = await response.json()
+        return data
+    } else {
+        alert(`Erreur ${response.status}.
+        Veuillez revenir plus tard`)
+    }
 }
 
 const getProducts = async () => {
@@ -97,7 +102,7 @@ function editQuantity() {
 
         itemsQuantity[i].addEventListener("change", function (event) {  
 
-            const newQuantity = event.path[0].valueAsNumber
+            const newQuantity = parseInt(event.path[0].valueAsNumber)
             const articleProduct = event.path[4]
 
             const positionChild = Array.prototype.indexOf.call(sectionArticle.children, articleProduct)
@@ -198,11 +203,29 @@ form.addEventListener("submit", function (event) {
         contact[nameField] = valueField   
     }
 
-    async function postAndGoConfiramation() {
-        let resPost = await post(contact)
-        console.log(resPost.orderId)
-        document.location.href = `./confirmation.html?orderId=${resPost.orderId}`;
+    function checkMail(mail) {
+        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
     }
 
-    postAndGoConfiramation()
+    if (checkMail(contact.email)) {
+        async function postAndGoConfiramation() {
+                let resPost = await post(contact)
+                console.log(resPost.orderId)
+                document.location.href = `./confirmation.html?orderId=${resPost.orderId}`;
+            }
+
+        postAndGoConfiramation()
+
+        //Vider le panier
+        productsLocalStorage = []
+        let productsLinea = JSON.stringify(productsLocalStorage)
+        localStorage.setItem("products", productsLinea) 
+    } else {
+        const mailForm = document.querySelector('#email')
+
+        mailForm.style.backgroundColor = "red"
+        mailForm.style.borderRadius = "20px"
+        alert(`${contact.email} n'est pas une adresse mail valide`)
+    }
 })
